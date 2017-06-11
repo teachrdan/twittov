@@ -8,7 +8,7 @@
 	  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET
 	});
 	var params = {
-		screen_name: 'realDonaldTrump',
+		screen_name: 'RealDonaldTrump',
 		count: 200
 	};
 
@@ -19,7 +19,7 @@
 			word = (word==='&amp;') ? '&' : word;
 			return word;
 		});
-	}
+	};
 
 	var generateFirstWordObject = (arrOfArrs) => {
 		var storage = {};
@@ -76,7 +76,7 @@
 				sentence + ' ' + currentWord;
 			i++;
 		}
-		console.log(`Markov sentence: ${sentence}`);
+		console.log(sentence);
 		return sentence;
 	};
 
@@ -85,8 +85,10 @@
 		  if (error) {
 				console.log(`error getting tweets for ${params.screen_name}: ${error}`);
 		  } else {
-				// split on each word and on the punctuation at the end of a sentence, too
-				var messageTexts = rawTweetsArr.map((tweet) => tweet.text.replace(/^(.*?)([/!/?/.]*)$/, (match, p1, p2) => `${p1} ${p2}`).split(' '));
+				// convert array of tweet objects to array of tweet text, filtering out RTs
+				var messageTexts = rawTweetsArr.filter((tweetObj) => !/^[RT ]/.test(tweetObj.text)).map((tweetObj) =>
+					// add a space before end of sentence punctuation for better parsing / more human-looking tweets
+					tweetObj.text.replace(/^(.*?)([/!/?/.]*)$/, (match, p1, p2) => `${p1} ${p2}`).split(' '));
 				messageTexts = messageTexts.map(cleanArrText);
 				var firstWords = generateFirstWordObject(messageTexts); // format: {word: num...}
 				var allWords = generateAllWordsObject(messageTexts); // format: {word: [followingWord, followingWord,...]}
