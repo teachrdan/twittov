@@ -13,7 +13,7 @@
 	};
 
 	var cleanArrText = (arr) => {
-		return arr.map((word) => {
+		return arr.map(word => {
 			word = (/[\)\,\:\"]$/.test(word)) ? word.substring(0, word.length - 1) : word; // remove word-final ), comma, : and "
 			word = (/^[\"\(]/.test(word)) ? word.substring(1) : word; // remove word-initial " and (
 			word = (word==='&amp;') ? '&' : word;
@@ -23,7 +23,7 @@
 
 	var generateFirstWordObject = (arrOfArrs) => {
 		var storage = {};
-		arrOfArrs.forEach((arr) => {
+		arrOfArrs.forEach(arr => {
 			arr.forEach((word, idx, arr) => {
 				if (idx===0 && !storage[word]) {
 					storage[word] = 1;
@@ -37,7 +37,7 @@
 
 	var generateAllWordsObject = (arrOfArrs) => {
 		var storage = {};
-		arrOfArrs.forEach((arr) => {
+		arrOfArrs.forEach(arr => {
 			arr.forEach((word, idx, arr) => {
 				var nextWord = (idx+1===arr.length) ? 'END' : arr[idx+1];
 				if (!storage[word]) {
@@ -76,17 +76,18 @@
 				sentence + ' ' + currentWord;
 			i++;
 		}
-		console.log(sentence);
+		console.log(`@${params.screen_name}: ${sentence}`);
 		return sentence;
 	};
 
 	client
 		.get('statuses/user_timeline', params, ((error, rawTweetsArr, response) => {
 		  if (error) {
-				console.log(`error getting tweets for ${params.screen_name}: ${error}`);
+				const errorMsg = (error[0].message) ? error[0].message : error;
+				console.log(`Twitter error message: "${errorMsg}"`);
 		  } else {
 				// convert array of tweet objects to array of tweet text, filtering out RTs
-				var messageTexts = rawTweetsArr.filter((tweetObj) => !/^[RT ]/.test(tweetObj.text)).map((tweetObj) =>
+				var messageTexts = rawTweetsArr.filter(tweetObj => !tweetObj.text.startsWith('RT ')).map(tweetObj =>
 					// add a space before end of sentence punctuation for better parsing / more human-looking tweets
 					tweetObj.text.replace(/^(.*?)([/!/?/.]*)$/, (match, p1, p2) => `${p1} ${p2}`).split(' '));
 				messageTexts = messageTexts.map(cleanArrText);
